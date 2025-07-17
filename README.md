@@ -1,6 +1,6 @@
 # Machine Engine Infonetica Assignment
 
-This project is a basic machine engine built with C# and ASP.NET Core. It lets you define machines, states, and actions. You can choose states and define actions that map from one state to another. NOTE: You can have only one initial state.
+This project is a basic machine engine built with C# and .NET8. It lets you define machines, states, and actions. You can choose states and define actions that map from one state to another. NOTE: You can have only one initial state.
 
 ---
 
