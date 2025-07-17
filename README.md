@@ -32,8 +32,8 @@ Infonetica_Workflow/
 
 1. **Clone the repository:**
    ```bash
-   git clone <your-repo-url>
-   cd Infonetica_Test_Task
+   git clone https://github.com/rajShaibya/Infonetica_Workspace
+   cd Infonetica_Workspace
    ```
 2. **Build the project (optional):**
    ```bash
