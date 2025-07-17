@@ -1,21 +1,21 @@
-// This file has the WorkflowDefinition, WorkflowInstance, and HistoryEntry classes
+// This file has the MachineDefinition, MachineInstance, and HistoryEntry classes
 namespace WorkflowEngine.Models
 {
-    // This is the definition of a workflow
-    public class WorkflowDefinition {
-        // The id for the workflow
+    // This is the definition of a machine
+    public class MachineDefinition {
+        // The id for the machine
         public string Id { get; set; } = null!;
-        // All the states in the workflow
+        // All the states in the machine
         public List<State> States { get; set; } = new List<State>();
-        // All the actions in the workflow
+        // All the actions in the machine
         public List<Action> Actions { get; set; } = new List<Action>();
     }
 
-    // This is an instance of a workflow
-    public class WorkflowInstance {
+    // This is an instance of a machine
+    public class MachineInstance {
         // The id for the instance
         public string Id { get; set; } = null!;
-        // The id of the workflow definition
+        // The id of the machine definition
         public string DefinitionId { get; set; } = null!;
         // The current state of the instance
         public string CurrentState { get; set; } = null!;

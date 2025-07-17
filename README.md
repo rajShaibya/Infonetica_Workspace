@@ -1,6 +1,6 @@
-# Workflow Engine Infonetica Assignment
+# Machine Engine Infonetica Assignment
 
-This project is a basic workflow engine built with C# and ASP.NET Core. It lets you define workflows, states, and actions.Ypu can choose states and define actions that map from one state to other. NOTE: You can have only one initial state.
+This project is a basic machine engine built with C# and ASP.NET Core. It lets you define machines, states, and actions. You can choose states and define actions that map from one state to another. NOTE: You can have only one initial state.
 
 ---
 
@@ -50,54 +50,54 @@ Infonetica_Workflow/
 
 ## API Endpoints
 
-- `POST   /workflow-definitions` – Create a new workflow
-- `GET    /workflow-definitions` – List all workflows
-- `GET    /workflow-definitions/{id}` – Get a workflow by ID
-- `GET    /workflow-definitions/{id}/states` – List states for a workflow
-- `GET    /workflow-definitions/{id}/actions` – List actions for a workflow
-- `POST   /workflow-definitions/{id}/states` – Add a state to a workflow
-- `POST   /workflow-definitions/{id}/actions` – Add an action to a workflow
-- `POST   /workflow-instances?definitionId={id}` – Start a new workflow instance
-- `GET    /workflow-instances` – List all workflow instances
-- `GET    /workflow-instances/{id}` – Get instance status and history
-- `POST   /workflow-instances/{id}/actions/{actionId}` – Execute an action on an instance
+- `POST   /machine-definitions` – Create a new machine
+- `GET    /machine-definitions` – List all machines
+- `GET    /machine-definitions/{id}` – Get a machine by ID
+- `GET    /machine-definitions/{id}/states` – List states for a machine
+- `GET    /machine-definitions/{id}/actions` – List actions for a machine
+- `POST   /machine-definitions/{id}/states` – Add a state to a machine
+- `POST   /machine-definitions/{id}/actions` – Add an action to a machine
+- `POST   /machine-instances?definitionId={id}` – Start a new machine instance
+- `GET    /machine-instances` – List all machine instances
+- `GET    /machine-instances/{id}` – Get instance status and history
+- `POST   /machine-instances/{id}/actions/{actionId}` – Execute an action on an instance
 
 ---
 
 ## Sample JSON and Usage
 
-### Create Workflow Definition
+### Create Machine Definition
 ```json
 {
-  "id": "idea1",
+  "id": "machine1",
   "states": [
-    { "id": "idea", "name": "Idea", "isInitial": true, "isFinal": false, "enabled": true, "description": "Initial State"},
-    { "id": "implementation", "name": "Implementation", "isInitial": false, "isFinal": false, "enabled": true },
-    { "id": "completed", "name": "Completed", "isInitial": false, "isFinal": true, "enabled": true }
+    { "id": "idle", "name": "Idle", "isInitial": true, "isFinal": false, "enabled": true, "description": "Initial State"},
+    { "id": "running", "name": "Running", "isInitial": false, "isFinal": false, "enabled": true },
+    { "id": "stopped", "name": "Stopped", "isInitial": false, "isFinal": true, "enabled": true }
   ],
   "actions": [
-    { "id": "start_work", "name": "Start Implementation", "enabled": true, "fromStates": ["idea"], "toState": "implementation" },
-    { "id": "finish", "name": "Mark as Completed", "enabled": true, "fromStates": ["implementation"], "toState": "completed" }
+    { "id": "start", "name": "Start Machine", "enabled": true, "fromStates": ["idle"], "toState": "running" },
+    { "id": "stop", "name": "Stop Machine", "enabled": true, "fromStates": ["running"], "toState": "stopped" }
   ]
 }
 ```
 
-### Start Workflow Instance
+### Start Machine Instance
 ```
-POST /workflow-instances?definitionId=work1
+POST /machine-instances?definitionId=machine1
 ```
 
 ### Execute Action
 ```
-POST /workflow-instances/{instanceId}/actions/submit
+POST /machine-instances/{instanceId}/actions/start
 ```
 
 ### State and Action with Description
 ```json
 {
-  "id": "draft",
-  "name": "Draft",
-  "description": "This is the draft state.",
+  "id": "idle",
+  "name": "Idle",
+  "description": "This is the idle state.",
   "isInitial": true,
   "isFinal": false,
   "enabled": true
@@ -106,41 +106,41 @@ POST /workflow-instances/{instanceId}/actions/submit
 
 ```json
 {
-  "id": "submit",
-  "name": "Submit for Review",
-  "description": "Submit the document for review.",
+  "id": "start",
+  "name": "Start Machine",
+  "description": "Start the machine.",
   "enabled": true,
-  "fromStates": ["draft"],
-  "toState": "review"
+  "fromStates": ["idle"],
+  "toState": "running"
 }
 ```
 
-### Add State to Workflow
+### Add State to Machine
 ```
-POST /workflow-definitions/{id}/states
+POST /machine-definitions/{id}/states
 ```
 Body:
 ```json
 {
   "id": "newstate",
   "name": "New State",
-  "description": "A new state added to the workflow.",
+  "description": "A new state added to the machine.",
   "isInitial": false,
   "isFinal": false,
   "enabled": true
 }
 ```
 
-### Add Action to Workflow
+### Add Action to Machine
 ```
-POST /workflow-definitions/{id}/actions
+POST /machine-definitions/{id}/actions
 ```
 Body:
 ```json
 {
   "id": "newaction",
   "name": "New Action",
-  "description": "A new action added to the workflow.",
+  "description": "A new action added to the machine.",
   "enabled": true,
   "fromStates": ["someStateId"],
   "toState": "anotherStateId"
@@ -150,7 +150,7 @@ Body:
 ---
 
 ## Notes
-- **All data is in-memory only.** When the app stops, all workflows and instances are lost.
+- **All data is in-memory only.** When the app stops, all machines and instances are lost.
 - **Runs on port 5000** by default (see console output for confirmation).
 - **Tested with Postman.**
 - Models, storage, and endpoints are clearly separated for maintainability.

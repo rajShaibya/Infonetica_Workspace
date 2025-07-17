@@ -1,4 +1,4 @@
-// This file has the service for workflows
+// This file has the service for machines
 using WorkflowEngine.Models; // get the models
 using WorkflowEngine.Storage; // get the storage
 using System; // for stuff like Exception
@@ -6,27 +6,27 @@ using System; // for stuff like Exception
 
 namespace WorkflowEngine.Services
 {
-    // This is the service that does workflow things
-    public class WorkflowService {
+    // This is the service that does machine things
+    public class MachineService {
         // These are the repositories for definitions and instances
-        private readonly IRepository<WorkflowDefinition> _definitions;
-        private readonly IRepository<WorkflowInstance> _instances;
+        private readonly IRepository<MachineDefinition> _definitions;
+        private readonly IRepository<MachineInstance> _instances;
 
         // This is the constructor, it gets the repos
-        public WorkflowService(IRepository<WorkflowDefinition> definitions, IRepository<WorkflowInstance> instances) {
+        public MachineService(IRepository<MachineDefinition> definitions, IRepository<MachineInstance> instances) {
             _definitions = definitions;
             _instances = instances;
         }
 
-        // This makes a new workflow definition
-        public bool CreateWorkflowDefinition(WorkflowDefinition def, out string error) {
+        // This makes a new machine definition
+        public bool CreateMachineDefinition(MachineDefinition def, out string error) {
             if (def.Id == null || def.Id.Trim() == "")
             {
                 def.Id = Guid.NewGuid().ToString(); // make a new id if none
             }
 
             if (_definitions.Get(def.Id) != null) {
-                error = "Workflow with id '" + def.Id + "' already exists.";
+                error = "Machine with id '" + def.Id + "' already exists.";
                 return false;
             }
 
@@ -40,19 +40,19 @@ namespace WorkflowEngine.Services
             return true;
         }
 
-        // This checks if a workflow definition is ok
-        public bool IsValidDefinition(WorkflowDefinition def, out string error) {
+        // This checks if a machine definition is ok
+        public bool IsValidDefinition(MachineDefinition def, out string error) {
             var stateIds = new System.Collections.Generic.List<string>();
             for (int i = 0; i < def.States.Count; i++)
             {
                 stateIds.Add(def.States[i].Id);
             }
             if (def.States == null || def.States.Count < 2) {
-                error = "Workflow must have at least two states.";
+                error = "Machine must have at least two states.";
                 return false;
             }
             if (def.Actions == null || def.Actions.Count < 1) {
-                error = "Workflow must have at least one action.";
+                error = "Machine must have at least one action.";
                 return false;
             }
             int initialCount = 0;
@@ -61,7 +61,7 @@ namespace WorkflowEngine.Services
                 if (def.States[i].IsInitial) initialCount++;
             }
             if (initialCount != 1) {
-                error = "Workflow must have exactly one initial state.";
+                error = "Machine must have exactly one initial state.";
                 return false;
             }
             var stateIdCounts = new System.Collections.Generic.Dictionary<string, int>();
@@ -110,8 +110,8 @@ namespace WorkflowEngine.Services
             return true;
         }
 
-        // This starts a workflow instance
-        public WorkflowInstance StartInstance(string definitionId) {
+        // This starts a machine instance
+        public MachineInstance StartInstance(string definitionId) {
             var def = _definitions.Get(definitionId);
             if (def == null)
             {
@@ -126,7 +126,7 @@ namespace WorkflowEngine.Services
             {
                 throw new Exception("No initial state found.");
             }
-            var instance = new WorkflowInstance {
+            var instance = new MachineInstance {
                 Id = Guid.NewGuid().ToString(),
                 DefinitionId = definitionId,
                 CurrentState = init.Id
@@ -135,8 +135,8 @@ namespace WorkflowEngine.Services
             return instance;
         }
 
-        // This does an action on a workflow instance
-        public WorkflowInstance ExecuteAction(string instanceId, string actionId) {
+        // This does an action on a machine instance
+        public MachineInstance ExecuteAction(string instanceId, string actionId) {
             var instance = _instances.Get(instanceId);
             if (instance == null)
             {
@@ -154,7 +154,7 @@ namespace WorkflowEngine.Services
             }
             if (action == null)
             {
-                throw new Exception("Action not found in workflow definition.");
+                throw new Exception("Action not found in machine definition.");
             }
             if (!action.Enabled)
             {
@@ -186,11 +186,11 @@ namespace WorkflowEngine.Services
             return instance;
         }
 
-        // This adds a state to a workflow
-        public bool AddStateToWorkflow(string workflowId, State state, out string error) {
-            var def = _definitions.Get(workflowId);
+        // This adds a state to a machine
+        public bool AddStateToMachine(string machineId, State state, out string error) {
+            var def = _definitions.Get(machineId);
             if (def == null) {
-                error = "Workflow not found.";
+                error = "Machine not found.";
                 return false;
             }
             for (int i = 0; i < def.States.Count; i++)
@@ -207,7 +207,7 @@ namespace WorkflowEngine.Services
                 {
                     if (def.States[i].IsInitial)
                     {
-                        error = "There is already an initial state in this workflow. Only one initial state is allowed.";
+                        error = "There is already an initial state in this machine. Only one initial state is allowed.";
                         return false;
                     }
                 }
@@ -221,11 +221,11 @@ namespace WorkflowEngine.Services
             return true;
         }
 
-        // This adds an action to a workflow
-        public bool AddActionToWorkflow(string workflowId, WorkflowEngine.Models.Action action, out string error) {
-            var def = _definitions.Get(workflowId);
+        // This adds an action to a machine
+        public bool AddActionToMachine(string machineId, WorkflowEngine.Models.Action action, out string error) {
+            var def = _definitions.Get(machineId);
             if (def == null) {
-                error = "Workflow not found.";
+                error = "Machine not found.";
                 return false;
             }
             for (int i = 0; i < def.Actions.Count; i++)

@@ -7,38 +7,32 @@ using WorkflowEngine.Services; // Import services
 var builder = WebApplication.CreateBuilder(args); // make a builder
 
 // Register repositories and services so we can use them later
-builder.Services.AddSingleton<IRepository<WorkflowDefinition>, InMemoryRepository<WorkflowDefinition>>(); // workflow def repo
-builder.Services.AddSingleton<IRepository<WorkflowInstance>, InMemoryRepository<WorkflowInstance>>(); // workflow instance repo
-builder.Services.AddSingleton<WorkflowService>(); // workflow service
+builder.Services.AddSingleton<IRepository<MachineDefinition>, InMemoryRepository<MachineDefinition>>(); // machine def repo
+builder.Services.AddSingleton<IRepository<MachineInstance>, InMemoryRepository<MachineInstance>>(); // machine instance repo
+builder.Services.AddSingleton<MachineService>(); // machine service
 
 var app = builder.Build(); // build the app
 
-// This is for creating a workflow definition
-// Example fetch call from JavaScript:
-// fetch('http://localhost:5000/workflow-definitions', {
-//   method: 'POST',
-//   headers: { 'Content-Type': 'application/json' },
-//   body: JSON.stringify({ id: 'work1', states: [], actions: [] })
-// }).then(res => res.json()).then(console.log);
-app.MapPost("/workflow-definitions", (WorkflowDefinition def, WorkflowService service) => {
-    Console.WriteLine("POST /workflow-definitions endpoint hit");
+// This is for creating a machine definition
+app.MapPost("/machine-definitions", (MachineDefinition def, MachineService service) => {
+    Console.WriteLine("POST /machine-definitions endpoint hit");
     if (def == null)
     {
         Console.WriteLine("Request body is missing");
         return Results.BadRequest("Request body is missing");
     }
     string errorMsg;
-    bool ok = service.CreateWorkflowDefinition(def, out errorMsg);
+    bool ok = service.CreateMachineDefinition(def, out errorMsg);
     if (!ok)
     {
-        Console.WriteLine("Failed to create workflow: " + errorMsg);
+        Console.WriteLine("Failed to create machine: " + errorMsg);
         return Results.BadRequest(errorMsg);
     }
     return Results.Ok(def);
 });
 
-// This gets a workflow definition by id
-app.MapGet("/workflow-definitions/{id}", (string id, IRepository<WorkflowDefinition> repo) => {
+// This gets a machine definition by id
+app.MapGet("/machine-definitions/{id}", (string id, IRepository<MachineDefinition> repo) => {
     if (string.IsNullOrEmpty(id))
     {
         Console.WriteLine("Id is required");
@@ -51,16 +45,16 @@ app.MapGet("/workflow-definitions/{id}", (string id, IRepository<WorkflowDefinit
     }
     else
     {
-        Console.WriteLine("Workflow not found: " + id);
+        Console.WriteLine("Machine not found: " + id);
         return Results.NotFound();
     }
 });
 
-// This gets all workflow definitions
-app.MapGet("/workflow-definitions", (IRepository<WorkflowDefinition> repo) => {
-    Console.WriteLine("GET /workflow-definitions endpoint hit");
+// This gets all machine definitions
+app.MapGet("/machine-definitions", (IRepository<MachineDefinition> repo) => {
+    Console.WriteLine("GET /machine-definitions endpoint hit");
     var allDefs = repo.GetAll();
-    List<WorkflowDefinition> result = new List<WorkflowDefinition>();
+    List<MachineDefinition> result = new List<MachineDefinition>();
     for (int i = 0; i < allDefs.Count; i++)
     {
         result.Add(allDefs[i]);
@@ -68,8 +62,8 @@ app.MapGet("/workflow-definitions", (IRepository<WorkflowDefinition> repo) => {
     return Results.Ok(result);
 });
 
-// This is for starting a workflow instance
-app.MapPost("/workflow-instances", (string definitionId, WorkflowService service) => {
+// This is for starting a machine instance
+app.MapPost("/machine-instances", (string definitionId, MachineService service) => {
     if (string.IsNullOrEmpty(definitionId))
     {
         Console.WriteLine("definitionId is required");
@@ -87,8 +81,8 @@ app.MapPost("/workflow-instances", (string definitionId, WorkflowService service
     }
 });
 
-// This is for doing an action on a workflow instance
-app.MapPost("/workflow-instances/{id}/actions/{actionId}", (string id, string actionId, WorkflowService service) => {
+// This is for doing an action on a machine instance
+app.MapPost("/machine-instances/{id}/actions/{actionId}", (string id, string actionId, MachineService service) => {
     if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(actionId))
     {
         Console.WriteLine("id and actionId are required");
@@ -106,8 +100,8 @@ app.MapPost("/workflow-instances/{id}/actions/{actionId}", (string id, string ac
     }
 });
 
-// This gets a workflow instance by id
-app.MapGet("/workflow-instances/{id}", (string id, IRepository<WorkflowInstance> repo) => {
+// This gets a machine instance by id
+app.MapGet("/machine-instances/{id}", (string id, IRepository<MachineInstance> repo) => {
     if (string.IsNullOrEmpty(id))
     {
         Console.WriteLine("Id is required");
@@ -125,10 +119,10 @@ app.MapGet("/workflow-instances/{id}", (string id, IRepository<WorkflowInstance>
     }
 });
 
-// This gets all workflow instances
-app.MapGet("/workflow-instances", (IRepository<WorkflowInstance> repo) => {
+// This gets all machine instances
+app.MapGet("/machine-instances", (IRepository<MachineInstance> repo) => {
     var allInst = repo.GetAll();
-    List<WorkflowInstance> result = new List<WorkflowInstance>();
+    List<MachineInstance> result = new List<MachineInstance>();
     for (int i = 0; i < allInst.Count; i++)
     {
         result.Add(allInst[i]);
@@ -136,8 +130,8 @@ app.MapGet("/workflow-instances", (IRepository<WorkflowInstance> repo) => {
     return Results.Ok(result);
 });
 
-// This gets all states for a workflow definition
-app.MapGet("/workflow-definitions/{id}/states", (string id, IRepository<WorkflowDefinition> repo) => {
+// This gets all states for a machine definition
+app.MapGet("/machine-definitions/{id}/states", (string id, IRepository<MachineDefinition> repo) => {
     if (string.IsNullOrEmpty(id))
     {
         Console.WriteLine("Id is required");
@@ -146,7 +140,7 @@ app.MapGet("/workflow-definitions/{id}/states", (string id, IRepository<Workflow
     var def = repo.Get(id);
     if (def == null)
     {
-        Console.WriteLine("Workflow not found for states: " + id);
+        Console.WriteLine("Machine not found for states: " + id);
         return Results.NotFound();
     }
     else
@@ -160,8 +154,8 @@ app.MapGet("/workflow-definitions/{id}/states", (string id, IRepository<Workflow
     }
 });
 
-// This gets all actions for a workflow definition
-app.MapGet("/workflow-definitions/{id}/actions", (string id, IRepository<WorkflowDefinition> repo) => {
+// This gets all actions for a machine definition
+app.MapGet("/machine-definitions/{id}/actions", (string id, IRepository<MachineDefinition> repo) => {
     if (string.IsNullOrEmpty(id))
     {
         Console.WriteLine("Id is required");
@@ -170,7 +164,7 @@ app.MapGet("/workflow-definitions/{id}/actions", (string id, IRepository<Workflo
     var def = repo.Get(id);
     if (def == null)
     {
-        Console.WriteLine("Workflow not found for actions: " + id);
+        Console.WriteLine("Machine not found for actions: " + id);
         return Results.NotFound();
     }
     else
@@ -184,8 +178,8 @@ app.MapGet("/workflow-definitions/{id}/actions", (string id, IRepository<Workflo
     }
 });
 
-// This adds a state to a workflow definition
-app.MapPost("/workflow-definitions/{id}/states", (string id, State state, WorkflowService service) => {
+// This adds a state to a machine definition
+app.MapPost("/machine-definitions/{id}/states", (string id, State state, MachineService service) => {
     if (string.IsNullOrEmpty(id))
     {
         Console.WriteLine("Id is required");
@@ -197,7 +191,7 @@ app.MapPost("/workflow-definitions/{id}/states", (string id, State state, Workfl
         return Results.BadRequest("State is required");
     }
     string errorMsg;
-    bool ok = service.AddStateToWorkflow(id, state, out errorMsg);
+    bool ok = service.AddStateToMachine(id, state, out errorMsg);
     if (ok)
     {
         return Results.Ok(state);
@@ -209,8 +203,8 @@ app.MapPost("/workflow-definitions/{id}/states", (string id, State state, Workfl
     }
 });
 
-// This adds an action to a workflow definition
-app.MapPost("/workflow-definitions/{id}/actions", (string id, WorkflowEngine.Models.Action action, WorkflowService service) => {
+// This adds an action to a machine definition
+app.MapPost("/machine-definitions/{id}/actions", (string id, WorkflowEngine.Models.Action action, MachineService service) => {
     if (string.IsNullOrEmpty(id))
     {
         Console.WriteLine("Id is required");
@@ -222,7 +216,7 @@ app.MapPost("/workflow-definitions/{id}/actions", (string id, WorkflowEngine.Mod
         return Results.BadRequest("Action is required");
     }
     string errorMsg;
-    bool ok = service.AddActionToWorkflow(id, action, out errorMsg);
+    bool ok = service.AddActionToMachine(id, action, out errorMsg);
     if (ok)
     {
         return Results.Ok(action);
@@ -233,6 +227,5 @@ app.MapPost("/workflow-definitions/{id}/actions", (string id, WorkflowEngine.Mod
         return Results.BadRequest(errorMsg);
     }
 });
-
 // This starts the app
 app.Run();
